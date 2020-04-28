@@ -11,16 +11,16 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() { }
 
 async function runTerminalCommand(uri: vscode.Uri | undefined) {
-	const commands = getCommands();
+	const env = getEnvironment(uri || getOpenFileUri());
+
+	const commands = getCommands(!!env.isFile);
 
 	const pickedCommand = await showCommandsPick(commands);
 	if (!pickedCommand) {
 		return;
 	}
 
-	const env = getEnvironment(uri || getOpenFileUri());
-
-	runCommand(pickedCommand, env.cwd, env.resource);
+	runCommand(pickedCommand, env.cwd, env.resource, env.fullPath);
 }
 
 function getOpenFileUri() {

@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { TerminalCommand } from './command';
 
-export function getCommands() {
-    return sanitizeConfiguration(getConfiguration());
+export function getCommands(isFile: boolean) {
+    return sanitizeConfiguration(getConfiguration(), isFile);
 }
 
 function getConfiguration() {
@@ -11,7 +11,7 @@ function getConfiguration() {
         .get('runTerminalCommand.commands');
 }
 
-function sanitizeConfiguration(configuration: any) {
+function sanitizeConfiguration(configuration: any, isFile: boolean) {
     if (!Array.isArray(configuration)) {
         return [];
     }
@@ -25,8 +25,13 @@ function sanitizeConfiguration(configuration: any) {
                 auto: !!maybeCommand.auto,
                 preserve: !!maybeCommand.preserve,
                 name: notEmptyStringOrUndefined(maybeCommand.name),
-                group: notEmptyStringOrUndefined(maybeCommand.group)
+                group: notEmptyStringOrUndefined(maybeCommand.group),
+                forFile: defaultTrue(maybeCommand.forFile),
+                forFolder: defaultTrue(maybeCommand.forFolder)
             };
+        })
+        .filter((c) => {
+            return c.forFile && isFile || c.forFolder && !isFile;
         });
 }
 
@@ -36,4 +41,8 @@ function isNotEmptyString(value: any) {
 
 function notEmptyStringOrUndefined(value: any) {
     return isNotEmptyString(value) ? (value as string).trim() : undefined;
+}
+
+function defaultTrue(value: any) {
+    return value == null ? true : !!value;
 }

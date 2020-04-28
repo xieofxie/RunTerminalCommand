@@ -4,4 +4,6 @@ export interface TerminalCommand {
     preserve: boolean;
     name?: string;
     group?: string;
+    forFile: boolean;
+    forFolder: boolean;
 }
