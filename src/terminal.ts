@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { TerminalCommand } from './command';
 
 let previousTerminal: vscode.Terminal | undefined;
@@ -26,18 +27,19 @@ function ensureDisposed() {
 }
 
 async function insertVariables(command: string, resource?: string, fullPath?: string) {
-    const resourceResult = insertVariable(command, 'resource', resource);
-    const fullPathResult = insertVariable(resourceResult.command, 'file', fullPath);
-    const clipboardResult = insertVariable(fullPathResult.command, 'clipboard', await vscode.env.clipboard.readText());
+    let result = insertVariable(command, 'resource', resource);
+    result = insertVariable(result.command, 'file', fullPath, result.successful);
+    result = insertVariable(result.command, 'fileDirname', path.dirname(fullPath || ''), result.successful);
+    result = insertVariable(result.command, 'clipboard', await vscode.env.clipboard.readText(), result.successful);
 
     return {
-        command: clipboardResult.command,
-        successful: resourceResult.successful && clipboardResult.successful
+        command: result.command,
+        successful: result.successful
     };
 }
 
-function insertVariable(command: string, variable: string, value?: string) {
-    let successful = true;
+function insertVariable(command: string, variable: string, value?: string, lastSuccessful: boolean = true) {
+    let successful = lastSuccessful;
     const pattern = `{${variable}}`;
 
     if (new RegExp(pattern, 'i').test(command)) {

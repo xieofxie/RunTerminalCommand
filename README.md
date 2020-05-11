@@ -54,3 +54,4 @@ Run predefined terminal commands from Explorer context menu or Command Palette.
 |-------------|------------------------------------------------------------------------------------------------------------|
 | {resource}  | Name of current resource.                                                                                  |
 | {clipboard} | Clipboard content.                                                                                         |
+| More..      | Like https://github.com/edonet/vscode-command-runner                                                       |
